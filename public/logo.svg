@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Fee Tracker">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#065F46"/>
+      <stop offset="1" stop-color="#022C22"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="url(#bg)"/>
+  <rect x="1" y="1" width="62" height="62" rx="17" fill="none" stroke="#C9A46A" stroke-opacity="0.55" stroke-width="1.5"/>
+  <!-- Coin under the cap: the fee side of the mark -->
+  <ellipse cx="32" cy="46" rx="15" ry="4.5" fill="#C9A46A"/>
+  <path d="M17 42.5v-3.2c0 2.5 6.7 4.5 15 4.5s15-2 15-4.5v3.2c0 2.5-6.7 4.5-15 4.5s-15-2-15-4.5z" fill="#EBD3A6"/>
+  <!-- Mortarboard -->
+  <path d="M32 15 53 25.5 32 36 11 25.5z" fill="#F8E7C9"/>
+  <path d="M21 30.2v7.6c0 2.6 4.9 4.7 11 4.7s11-2.1 11-4.7v-7.6L32 36z" fill="#FDF8EC"/>
+  <path d="M32 36 53 25.5v6" fill="none" stroke="#C9A46A" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Tassel -->
+  <path d="M50 27.2v7.8" stroke="#C9A46A" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="50" cy="36.5" r="2.4" fill="#C9A46A"/>
+</svg>

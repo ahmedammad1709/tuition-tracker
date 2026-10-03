@@ -64,9 +64,7 @@ function AuthPage() {
     <div className="grid min-h-screen place-items-center bg-primary px-5">
       <div className="w-full max-w-sm animate-rise">
         <div className="mb-8 text-center text-primary-foreground">
-          <div className="mx-auto mb-4 grid h-16 w-16 place-items-center overflow-hidden rounded-3xl bg-champagne shadow-lift">
-            <BrandMark className="h-full w-full object-cover" />
-          </div>
+          <BrandMark className="mx-auto mb-4 h-16 w-16 shadow-lift rounded-3xl" />
           <h1 className="text-2xl font-semibold">Tuition Fee Tracker</h1>
           <p className="mt-1 text-sm opacity-80">
             {setup ? "Create your owner account" : "Welcome back, sign in to continue"}

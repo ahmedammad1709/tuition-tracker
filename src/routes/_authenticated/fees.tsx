@@ -21,6 +21,7 @@ import {
   StatusBadge,
 } from "@/components/fees/ui-bits";
 import { deletePayment } from "@/lib/fees.functions";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/fees")({
   head: () => ({
@@ -38,6 +39,7 @@ function FeesPage() {
   const { data, isLoading, error } = useQuery(appDataQuery);
   const qc = useQueryClient();
   const [month, setMonth] = useState(currentMonth());
+  const [filter, setFilter] = useState<PaidFilter>("all");
   const [target, setTarget] = useState<PaymentTarget | null>(null);
   if (isLoading) return <PageSkeleton />;
   if (error || !data)
@@ -48,7 +50,8 @@ function FeesPage() {
         text="Refresh the page and try again."
       />
     );
-  const { rows, expected, collected, remaining } = monthTotals(data, month);
+  const { rows: monthRows, expected, collected, remaining } = monthTotals(data, month);
+  const rows = monthRows.filter((row) => matchesFilter(row, filter));
   async function remove(paymentId: string) {
     if (!window.confirm("Delete this payment? This cannot be undone.")) return;
     const result = await deletePayment({ data: { paymentId } });
@@ -71,11 +74,37 @@ function FeesPage() {
         <Summary label="Collected" value={collected} tone="paid" />
         <Summary label="Remaining" value={remaining} tone="unpaid" />
       </div>
+      <div className="mb-5 flex" role="group" aria-label="Filter by payment status">
+        <div className="inline-flex rounded-2xl border border-border bg-card p-1 shadow-soft">
+          {FILTERS.map((f) => {
+            const count = monthRows.filter((row) => matchesFilter(row, f.value)).length;
+            const active = filter === f.value;
+            return (
+              <button
+                key={f.value}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setFilter(f.value)}
+                className={cn(
+                  "rounded-xl px-3.5 py-2 text-sm font-medium transition active:scale-95",
+                  active ? "bg-primary text-primary-foreground shadow-soft" : "text-muted-foreground hover:bg-secondary",
+                )}
+              >
+                {f.label} <span className="ml-1 text-xs opacity-70">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
       {rows.length === 0 ? (
         <EmptyState
           icon={<MessageCircle />}
-          title="No learners for this month"
-          text="Add a student or choose another month."
+          title={monthRows.length === 0 ? "No learners for this month" : "No learners match this filter"}
+          text={
+            monthRows.length === 0
+              ? "Add a student or choose another month."
+              : "Try another filter or choose another month."
+          }
         />
       ) : (
         <div className="space-y-3">
@@ -110,6 +139,21 @@ function FeesPage() {
       <PaymentDialog target={target} onClose={() => setTarget(null)} />
     </>
   );
+}
+
+type PaidFilter = "all" | "paid" | "unpaid";
+
+const FILTERS: { value: PaidFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "paid", label: "Paid" },
+  { value: "unpaid", label: "Unpaid" },
+];
+
+/** "Unpaid" covers partial payments too: anything with a balance still owed. */
+function matchesFilter(row: Row, filter: PaidFilter) {
+  if (filter === "paid") return row.status === "paid";
+  if (filter === "unpaid") return row.status !== "paid";
+  return true;
 }
 
 function FeeRow({

@@ -12,12 +12,18 @@ import { getAuthState, logoutOwner } from "@/lib/auth.functions";
 import { cn } from "@/lib/utils";
 import { BrandMark } from "@/components/BrandMark";
 
+/** Set once the server confirms the session, so tab switches don't wait on a round trip. */
+let verifiedEmail: string | null | undefined;
+
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    const state = await getAuthState();
-    if (!state.authenticated) throw redirect({ to: "/auth" });
-    return { email: state.email };
+    if (verifiedEmail === undefined) {
+      const state = await getAuthState();
+      if (!state.authenticated) throw redirect({ to: "/auth" });
+      verifiedEmail = state.email;
+    }
+    return { email: verifiedEmail };
   },
   component: AppShell,
 });
@@ -36,6 +42,7 @@ export function useSignOut() {
   return async () => {
     await qc.cancelQueries();
     qc.clear();
+    verifiedEmail = undefined;
     await logoutOwner();
     navigate({ to: "/auth", replace: true });
   };
@@ -48,9 +55,7 @@ function AppShell() {
     <div className="min-h-screen md:flex">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col bg-primary p-5 text-primary-foreground md:flex">
         <div className="mb-10 flex items-center gap-3 px-2">
-          <div className="grid h-10 w-10 place-items-center overflow-hidden rounded-2xl bg-champagne">
-            <BrandMark className="h-full w-full object-cover" />
-          </div>
+          <BrandMark className="h-10 w-10 shrink-0" />
           <div className="leading-tight">
             <div className="font-semibold">Fee Tracker</div>
             <div className="text-xs opacity-70">Tuition records</div>
@@ -79,9 +84,7 @@ function AppShell() {
       </aside>
 
       <header className="sticky top-0 z-30 flex items-center gap-3 bg-primary px-5 py-3.5 text-primary-foreground shadow-soft md:hidden">
-        <div className="grid h-9 w-9 place-items-center overflow-hidden rounded-xl bg-champagne">
-          <BrandMark className="h-full w-full object-cover" />
-        </div>
+        <BrandMark className="h-9 w-9 shrink-0" />
         <span className="font-semibold">Fee Tracker</span>
       </header>
 
